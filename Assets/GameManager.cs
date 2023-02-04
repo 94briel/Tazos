@@ -5,7 +5,13 @@ using UnityEngine.UI;
 using TMPro;
 
 public class GameManager : MonoBehaviour
-{
+{   
+    // parametros para la fuerza de lanzamiento
+    public float pos;
+    public bool sumando;
+    public Slider potencia;
+    public bool raton;
+    // parametros Omar
     public static GameManager instance;
     public bool inGame = true;
     public GameObject tazo,target,star;
@@ -22,14 +28,47 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        StartCoroutine("Bonus");
+        StartCoroutine("Bonus");//inicia el spawn de las estrellas
     }
 
     void Update()
     {
-        
+        ShotForce();
     }
-    IEnumerator Bonus()
+    public void ShotForce() 
+    {
+      if (raton==true)
+        {
+            if (sumando == true)
+            {
+                if (pos<1)
+                {
+                    pos = pos + Time.deltaTime;
+                }
+                else
+                {
+                 sumando = false;
+                }
+            }
+            else
+            {
+                if (pos>0  )
+                {
+                    pos = pos - Time.deltaTime;
+                }
+                else
+                {
+                 sumando = true;
+                }
+            }
+            potencia.value=pos;
+        }
+        if ( Input.GetMouseButtonDown(0))
+        {
+            raton = false;
+        }
+    }
+    IEnumerator Bonus()// spawn de estrellas 
     {
         while (true)
         {
