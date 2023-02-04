@@ -1,60 +1,66 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using Random = UnityEngine.Random;
 
 public class HandMovement : MonoBehaviour
 {
     // Start is called before the first frame update
-    [Range(0, 2)]
-    public float duration = .1f;
+    [Range(0, 2)] public float duration = .1f;
 
     public float speed = 1f;
 
-    public Transform ally, enemy;
-
     public Vector3 initialPosition;
     public float movement = .4f;
-    void Start()
-    { 
-        initialPosition = transform.position;
-        StartCoroutine(Move());
+    public float widthSize;
+    private Coroutine coroutineMove;
+
+    private void Start()
+    {
+        initialPosition = new Vector3(Random.Range(-.3f, .3f), 0.67f, 2.146f);
+        widthSize = GetWidthSize();
+        movement = Mathf.Clamp(Random.Range(movement, widthSize), movement, widthSize);
+        coroutineMove = StartCoroutine(Move());
+    }
+
+    private void Update()
+    {
     }
 
     // Update is called once per frame
-    void OnEnable()
+    private void OnEnable()
     {
-        EventController.singleton.playTazo += ReturnDistance;
-    }
-    
-    void OnDisable()
-    {
-        EventController.singleton.playTazo -= ReturnDistance;
+        EventController.singleton.playTazo += GiveDistance;
     }
 
-    private float CalculateDistance(Transform ally, Transform enemy)
+    private void OnDisable()
     {
-        return Mathf.Abs(ally.position.x - enemy.position.x);
+        EventController.singleton.playTazo -= GiveDistance;
     }
 
-    private float ReturnDistance()
-    { 
-        StopCoroutine("Move");
-        return CalculateDistance(ally, enemy);
+    private float CalculateXDistance(Transform a, Transform b)
+    {
+        return Mathf.Abs(a.position.x - b.position.x);
     }
 
-    IEnumerator Move(bool orientation = true)
+    private float GetWidthSize()
+    {
+        return Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, transform.position.z)).x;
+    }
+
+    private float GiveDistance()
+    {
+        EventController.singleton.playTazo -= GiveDistance;
+        StopCoroutine(coroutineMove);
+        return CalculateXDistance(CombatManager.singleton.ally.transform, CombatManager.singleton.enemy.transform) /
+               widthSize;
+    }
+
+    private IEnumerator Move()
     {
         while (true)
         {
             yield return new WaitForSeconds(1 / 60f);
-            transform.position = initialPosition + Mathf.Sin(Time.time * speed) * new Vector3(movement, 0f,0f);
-            
+            transform.position = initialPosition + Mathf.Sin(Time.time * speed) * new Vector3(movement, 0f, 0f);
+            initialPosition = initialPosition + new Vector3(Random.Range(-.001f, .001f), 0, 0);
         }
     }
-    
 }

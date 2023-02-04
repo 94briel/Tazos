@@ -1,16 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EventController : MonoBehaviour
 {
-    public event Func<float> playTazo;
     public static EventController singleton;
+    public estadoCombate eCombate;
 
     private void Awake()
     {
-        if(singleton==null)
+        if (singleton == null)
             singleton = this;
         else
             Destroy(gameObject);
@@ -18,15 +16,45 @@ public class EventController : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-            playTazo?.Invoke();
+        CombatEvents();
     }
+
+    public event Func<float> playTazo;
+    public event Func<bool> moveSlide;
+
+    private void CombatEvents()
+    {
+        if (!Input.GetMouseButtonDown(0)) return;
+        switch (CombatManager.singleton.estadoC)
+        {
+            case 0:
+
+                CombatManager.singleton.hitRatio = playTazo?.Invoke() ?? -1;
+                StartCoroutine(CombatManager.singleton.CambiarEstado(EstadoC.ACCURACY));
+                CombatManager.singleton.hitbar.SetActive(true);
+                break;
+            case (EstadoC)1:
+                StartCoroutine(CombatManager.singleton.CambiarEstado(EstadoC.HIT));
+                moveSlide?.Invoke();
+                Debug.Log("xd");
+                break;
+            case (EstadoC)2:
+                break;
+        }
+    }
+}
+
+public enum estadoCombate
+{
+    POSICIONAMIENTO = 0,
+    POTENCIACION = 1,
+    LANZAMIENTO = 2,
+    DISPARO = 3
 }

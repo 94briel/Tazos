@@ -1,23 +1,28 @@
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class GameManager : MonoBehaviour
-{   
+{
+    public static GameManager instance;
+
     // parametros para la fuerza de lanzamiento
     public float pos;
     public bool sumando;
     public Slider potencia;
     public bool raton;
+
+    public float evento;
+
     // parametros Omar
-    public static GameManager instance;
+    public Transform tazoAliado;
     public bool inGame = true;
-    public GameObject tazo,target,star;
-    public bool bonus = false;
+    public GameObject tazo, target, star;
+    public bool bonus;
     public TextMeshProUGUI pBonus;
     public float stopwatch;
+
     private void Awake()
     {
         inGame = true;
@@ -26,63 +31,55 @@ public class GameManager : MonoBehaviour
         else
             Destroy(this);
     }
-    void Start()
+
+    private void Start()
     {
-        StartCoroutine("Bonus");//inicia el spawn de las estrellas
+        StartCoroutine("Bonus"); //inicia el spawn de las estrellas
     }
 
-    void Update()
+    private void Update()
     {
         ShotForce();
     }
-    public void ShotForce() 
+
+    public void ShotForce()
     {
-      if (raton==true)
+        if (EventController.singleton.eCombate != estadoCombate.POTENCIACION) return;
+        if (sumando)
         {
-            if (sumando == true)
-            {
-                if (pos<1)
-                {
-                    pos = pos + Time.deltaTime;
-                }
-                else
-                {
-                 sumando = false;
-                }
-            }
+            if (pos < 1)
+                pos = pos + Time.deltaTime;
             else
-            {
-                if (pos>0  )
-                {
-                    pos = pos - Time.deltaTime;
-                }
-                else
-                {
-                 sumando = true;
-                }
-            }
-            potencia.value=pos;
+                sumando = false;
         }
-        if ( Input.GetMouseButtonDown(0))
+        else
         {
-            raton = false;
+            if (pos > 0)
+                pos = pos - Time.deltaTime;
+            else
+                sumando = true;
         }
+
+        potencia.value = pos;
     }
-    IEnumerator Bonus()// spawn de estrellas 
+
+    private IEnumerator Bonus() // spawn de estrellas 
     {
         while (true)
         {
             if (bonus && stopwatch <= 2)
             {
                 GameObject myStar;
-                myStar = Instantiate(star, new Vector3(Random.Range(-7, 7), Random.Range(1f, 14f), 0f), Quaternion.identity);
+                myStar = Instantiate(star, new Vector3(Random.Range(-7, 7), Random.Range(1f, 14f), 0f),
+                    Quaternion.identity);
                 myStar.AddComponent<Star>();
                 myStar.SetActive(true);
-                yield return new WaitForSeconds(0.85f);  
+                yield return new WaitForSeconds(0.85f);
                 myStar.SetActive(false);
                 yield return new WaitForSeconds(0.85f);
                 stopwatch += 1;
             }
+
             yield return null;
         }
     }

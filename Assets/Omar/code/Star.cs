@@ -1,22 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Star : MonoBehaviour
 {
-    private float stopwatch; 
+    private float stopwatch;
 
-    void Start()
+    private void Start()
     {
-        
     }
-    void Update()
+
+    private void Update()
     {
-       Invoke("Despanw",5);
+        Invoke("Despanw", 5);
     }
-    public void Despanw ()
+
+    public void Despanw()
     {
         Destroy(gameObject);
     }
-    
 }
