@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EventController : MonoBehaviour
 {
-    public event Action playTazo;
+    public event Func<float> playTazo;
     public static EventController singleton;
 
     private void Awake()
@@ -26,6 +26,7 @@ public class EventController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+            playTazo?.Invoke();
     }
 }

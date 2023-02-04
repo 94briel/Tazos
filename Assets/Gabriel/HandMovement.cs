@@ -7,79 +7,54 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
-public class HandMovement : MonoBehaviour, IPointerClickHandler 
+public class HandMovement : MonoBehaviour
 {
     // Start is called before the first frame update
     [Range(0, 2)]
     public float duration = .1f;
 
-    public float movementX = .4f;
+    public float speed = 1f;
 
     public Transform ally, enemy;
+
+    public Vector3 initialPosition;
+    public float movement = .4f;
     void Start()
-    {
+    { 
+        initialPosition = transform.position;
         StartCoroutine(Move());
     }
 
     // Update is called once per frame
-    void Update()
+    void OnEnable()
     {
+        EventController.singleton.playTazo += ReturnDistance;
     }
-
-    public void OnPointerClick(PointerEventData pointerEventData)
+    
+    void OnDisable()
     {
-        Debug.Log("dweede");
-        ReturnDistance();
+        EventController.singleton.playTazo -= ReturnDistance;
     }
 
     private float CalculateDistance(Transform ally, Transform enemy)
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-            Debug.Log(Mathf.Abs(ally.position.x - enemy.position.x));
-
         return Mathf.Abs(ally.position.x - enemy.position.x);
     }
 
     private float ReturnDistance()
     { 
         StopCoroutine("Move");
-        Debug.Log("xd");
-       return CalculateDistance(ally, enemy);
+        return CalculateDistance(ally, enemy);
     }
-    
+
     IEnumerator Move(bool orientation = true)
     {
-        Vector3 initialPosition = transform.position;
-        
-        float lerpDuration = duration + Random.Range(-.01f, .01f);
-        lerpDuration = Mathf.Clamp(duration,0.0001f, duration);
-
-        float lerpPosition = movementX;
-        lerpPosition = orientation ? lerpPosition : -lerpPosition;
-        float timeElapsed = 0;
-        
-        
-        Vector3 newPosition = new Vector3(lerpPosition + initialPosition.x, initialPosition.y, initialPosition.z);
-        while (timeElapsed < lerpDuration)
+        while (true)
         {
-            transform.position = Vector3.Lerp(initialPosition, newPosition, timeElapsed / lerpDuration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
+            yield return new WaitForSeconds(1 / 60f);
+            transform.position = initialPosition + Mathf.Sin(Time.time * speed) * new Vector3(movement, 0f,0f);
+            
         }
-
-        timeElapsed = 0f;
-        lerpDuration = duration + Random.Range(-.01f, .01f);;
-        while (timeElapsed < lerpDuration)
-        {
-            transform.position = Vector3.Lerp(newPosition, transform.position, timeElapsed / lerpDuration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-        yield return Move(!orientation);
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        
-    }
+    
 }
