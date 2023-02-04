@@ -1,24 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Rebote : MonoBehaviour
 {
     public float speed;
     
-    // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         transform.position += Vector3.forward *speed* Time.deltaTime;
-        if (Input.GetButtonDown("Fire1"))
+    }
+    private void OnCollisionEnter(Collision collision) {
+        if (collision.collider.name == "target")
         {
-            transform.position += Vector3.forward *speed* Time.deltaTime;
+            GameManager.instance.bonus = true;
         }
     }
 }
