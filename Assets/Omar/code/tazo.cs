@@ -17,5 +17,6 @@ public class tazo : MonoBehaviour
     {
         GameObject myTazo;
         myTazo = Instantiate(GameManager.instance.tazo,transform.position,Quaternion.identity);
+        GameManager.instance.tazoAliado = myTazo.transform;
     }
 }
